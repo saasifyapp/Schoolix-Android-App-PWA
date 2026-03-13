@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Calculate the ideal school admission class based on a student's birthdate. A free, offline-capable tool for parents and schools.">
+    <meta name="theme-color" content="#094f93">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <title>School Admission Age Calculator</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- App Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-content">
+            <i class='bx bxs-graduation header-icon'></i>
+            <h1>Age Calculator</h1>
+        </div>
+        <p class="header-subtitle">School Admission Helper</p>
+    </header>
+
+    <!-- Main Content -->
+    <main class="app-main">
+        <section class="calculator-card">
+            <label for="birthdate" class="input-label">
+                <i class='bx bx-cake'></i>
+                Date of Birth
+            </label>
+            <div class="input-group">
+                <input type="date" id="birthdate" class="date-input" aria-label="Enter birthdate">
+                <button id="clearButton" class="clear-btn" onclick="clearCalculator()" title="Clear">
+                    <i class='bx bx-x'></i>
+                </button>
+            </div>
+            <button id="calculateButton" class="calculate-btn">
+                <i class='bx bx-calculator'></i>
+                Calculate Age
+            </button>
+        </section>
+
+        <section class="result-card">
+            <div id="calculator_output">
+                <!-- Empty state will be injected by JS -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <p>Made with <i class='bx bxs-heart' style="color:#e74c3c;"></i> for Schoolix</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script src="app.js"></script>
+
+</body>
+</html>
