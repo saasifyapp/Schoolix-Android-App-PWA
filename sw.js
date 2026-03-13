@@ -1,4 +1,4 @@
-const CACHE_NAME = 'schoolix-age-calc-v2';
+const CACHE_NAME = 'age-calc-{{VERSION}}';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
