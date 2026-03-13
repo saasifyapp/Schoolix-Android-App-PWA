@@ -37,10 +37,11 @@ body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: var(--bg);
     color: var(--text);
-    min-height: 100vh;      /* Fallback for older browsers */
-    min-height: 100dvh;     /* Fixes mobile scrolling by accounting for dynamic address bars */
+    height: 100vh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -117,6 +118,7 @@ body {
     max-width: 480px;
     width: 100%;
     margin: 0 auto;
+    overflow-y: auto;
 }
 
 /* ── Calculator Card ── */

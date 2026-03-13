@@ -209,26 +209,49 @@ document.getElementById("calculateButton").addEventListener("click", function ()
     `);
 });
 
-// ── Register Service Worker ──
+// ── Register Service Worker + Active Update Flow ──
 let refreshing = false;
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then((reg) => console.log('Service Worker registered:', reg.scope))
-            .catch((err) => console.error('SW registration failed:', err));
-    });
+let newWorker = null;
 
-    // Listen for the controlling service worker changing (triggered by skipWaiting)
+if ('serviceWorker' in navigator) {
+    // Auto-reload when the new SW takes control
     navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (!refreshing) {
             refreshing = true;
             window.location.reload();
         }
     });
+
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then((reg) => {
+            console.log('Service Worker registered:', reg.scope);
+
+            // Force the browser to check for a new SW immediately
+            reg.update();
+
+            // Listen for a brand new SW being found
+            reg.addEventListener('updatefound', () => {
+                newWorker = reg.installing;
+
+                newWorker.addEventListener('statechange', () => {
+                    // Once the new SW is installed and waiting, run version check
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        // A new SW is ready. Check version.json to decide whether to prompt.
+                        checkForAppUpdate(newWorker);
+                    }
+                });
+            });
+
+            // Also check if a SW is ALREADY waiting (e.g. from a previous visit)
+            if (reg.waiting) {
+                checkForAppUpdate(reg.waiting);
+            }
+        }).catch((err) => console.error('SW registration failed:', err));
+    });
 }
 
-// ── Active Update Checker ──  
-(async function checkForAppUpdate() {
+// ── Version Check + Update Prompt ──
+async function checkForAppUpdate(waitingSW) {
     try {
         const response = await fetch('/version.json?t=' + new Date().getTime());
         if (!response.ok) return;
@@ -238,13 +261,13 @@ if ('serviceWorker' in navigator) {
         const currentVersion = localStorage.getItem('appVersion');
 
         if (!currentVersion) {
-            // First visit — just store version silently
+            // First visit — store silently, activate the new SW right away
             localStorage.setItem('appVersion', newVersion);
+            if (waitingSW) waitingSW.postMessage({ type: 'SKIP_WAITING' });
             return;
         }
 
         if (currentVersion !== newVersion) {
-            // Version mismatch — prompt user to update
             localStorage.setItem('appVersion', newVersion);
 
             Swal.fire({
@@ -257,17 +280,9 @@ if ('serviceWorker' in navigator) {
                 allowEscapeKey: false
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Tell the waiting Service Worker to skip waiting and activate
-                    if ('serviceWorker' in navigator) {
-                        navigator.serviceWorker.ready.then((reg) => {
-                            if (reg.waiting) {
-                                // This triggers the 'controllerchange' event above
-                                reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                            } else {
-                                // Fallback
-                                window.location.reload(true);
-                            }
-                        });
+                    // Tell the waiting SW to activate — controllerchange handles reload
+                    if (waitingSW) {
+                        waitingSW.postMessage({ type: 'SKIP_WAITING' });
                     } else {
                         window.location.reload(true);
                     }
@@ -275,7 +290,7 @@ if ('serviceWorker' in navigator) {
             });
         }
     } catch (err) {
-        // Silently fail — offline or version.json not deployed yet
         console.log('Update check skipped:', err.message);
     }
-})();
+}
+
