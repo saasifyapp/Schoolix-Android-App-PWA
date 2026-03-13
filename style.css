@@ -215,8 +215,7 @@ body {
 }
 
 .clear-btn {
-    width: auto;
-    aspect-ratio: 1;
+    width: 54px;
     border: 2px solid var(--border);
     border-radius: var(--radius-sm);
     background: var(--bg);
@@ -476,12 +475,12 @@ body {
 
 /* Pulse glow on suggested class */
 .suggested-class.pulse {
-    animation: pulseGlow 1.5s ease-in-out 0.6s;
+    animation: pulseGlow 2.5s ease-in-out infinite 0.6s;
 }
 
 @keyframes pulseGlow {
     0%   { text-shadow: 0 0 0 transparent; }
-    50%  { text-shadow: 0 0 12px rgba(9, 79, 147, 0.4); }
+    50%  { text-shadow: 0 0 8px rgba(9, 79, 147, 0.2); }
     100% { text-shadow: 0 0 0 transparent; }
 }
 
