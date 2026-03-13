@@ -210,11 +210,20 @@ document.getElementById("calculateButton").addEventListener("click", function ()
 });
 
 // ── Register Service Worker ──
+let refreshing = false;
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
             .then((reg) => console.log('Service Worker registered:', reg.scope))
             .catch((err) => console.error('SW registration failed:', err));
+    });
+
+    // Listen for the controlling service worker changing (triggered by skipWaiting)
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+        }
     });
 }
 
@@ -249,15 +258,19 @@ if ('serviceWorker' in navigator) {
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Tell the waiting Service Worker to skip waiting and activate
-                    if (navigator.serviceWorker.controller) {
+                    if ('serviceWorker' in navigator) {
                         navigator.serviceWorker.ready.then((reg) => {
                             if (reg.waiting) {
+                                // This triggers the 'controllerchange' event above
                                 reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                            } else {
+                                // Fallback
+                                window.location.reload(true);
                             }
                         });
+                    } else {
+                        window.location.reload(true);
                     }
-                    // Hard reload to pull fresh assets from the new SW cache
-                    window.location.reload(true);
                 }
             });
         }

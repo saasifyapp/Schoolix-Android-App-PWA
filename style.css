@@ -545,13 +545,16 @@ body {
 }
 
 /* ── Premium SweetAlert2 Overrides ── */
-.swal2-popup.swal2-show {
+.swal2-popup {
     border-radius: 20px !important;
     padding: 24px 20px 20px !important;
     width: 320px !important; /* Compact size for mobile */
     max-width: 90% !important;
     box-shadow: 0 16px 48px rgba(9, 79, 147, 0.15) !important;
     font-family: 'Inter', sans-serif !important;
+}
+
+.swal2-popup.swal2-show {
     animation: fadeSlideIn 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important;
 }
 
