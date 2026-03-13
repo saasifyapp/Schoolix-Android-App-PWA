@@ -168,3 +168,52 @@ if ('serviceWorker' in navigator) {
             .catch((err) => console.error('SW registration failed:', err));
     });
 }
+
+// ── Active Update Checker ──
+(async function checkForAppUpdate() {
+    try {
+        const response = await fetch('/version.json?t=' + new Date().getTime());
+        if (!response.ok) return;
+
+        const data = await response.json();
+        const newVersion = data.version;
+        const currentVersion = localStorage.getItem('appVersion');
+
+        if (!currentVersion) {
+            // First visit — just store version silently
+            localStorage.setItem('appVersion', newVersion);
+            return;
+        }
+
+        if (currentVersion !== newVersion) {
+            // Version mismatch — prompt user to update
+            localStorage.setItem('appVersion', newVersion);
+
+            Swal.fire({
+                icon: 'info',
+                title: 'Update Available',
+                text: 'A new version of the app is ready.',
+                confirmButtonText: 'Update Now',
+                confirmButtonColor: '#094f93',
+                allowOutsideClick: false,
+                allowEscapeKey: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Tell the waiting Service Worker to skip waiting and activate
+                    if (navigator.serviceWorker.controller) {
+                        navigator.serviceWorker.ready.then((reg) => {
+                            if (reg.waiting) {
+                                reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                            }
+                        });
+                    }
+                    // Hard reload to pull fresh assets from the new SW cache
+                    window.location.reload(true);
+                }
+            });
+        }
+    } catch (err) {
+        // Silently fail — offline or version.json not deployed yet
+        console.log('Update check skipped:', err.message);
+    }
+})();
