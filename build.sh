@@ -10,4 +10,8 @@ fi
 # Create the version.json file dynamically
 echo "{\"version\": \"$COMMIT_HASH\"}" > version.json
 
-echo "Build successful. version.json created with hash: $COMMIT_HASH"
+# Inject the hash into the HTML and SW files
+sed -i "s/{{VERSION}}/$COMMIT_HASH/g" index.html
+sed -i "s/{{VERSION}}/$COMMIT_HASH/g" sw.js
+
+echo "Build successful. version.json created and hash injected: $COMMIT_HASH"
