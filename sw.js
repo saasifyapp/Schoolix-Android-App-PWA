@@ -9,7 +9,8 @@ const ASSETS_TO_CACHE = [
   './icons/icon-512.png',
   'https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css',
   'https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js',
-  'https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css'
+  'https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css',
+  './icons/hero.png'
 ];
 
 // Install — pre-cache core assets

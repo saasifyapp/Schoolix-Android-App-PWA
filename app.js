@@ -5,7 +5,8 @@
 // Reusable empty state HTML
 const emptyStateHTML = `
     <div class="empty-state">
-        <i class='bx bx-info-circle'></i>
+        <img src="icons/hero.png" alt="School illustration" class="empty-state-img">
+        <i class='bx bx-info-circle bounce-icon'></i>
         Enter a birthdate to see the suggested class here.
     </div>
 `;
@@ -138,17 +139,17 @@ document.getElementById("calculateButton").addEventListener("click", function ()
     // ── 4. Render output ──
     document.getElementById("calculator_output").innerHTML = `
         <table class="age-table">
-            <tr>
+            <tr class="row-animate">
                 <td><i class='bx bx-calendar-check row-icon'></i> <strong>Current Age</strong></td>
                 <td>${current_age}</td>
             </tr>
-            <tr>
+            <tr class="row-animate">
                 <td><i class='bx bx-calendar-event row-icon'></i> <strong>Age on 31 Dec ${target_year}</strong></td>
                 <td>${age_on_date}</td>
             </tr>
-            <tr class="highlight-row">
+            <tr class="highlight-row row-animate">
                 <td><i class='bx bx-book-open row-icon'></i> <strong>Suggested Class</strong></td>
-                <td class="suggested-class">${show_class}</td>
+                <td class="suggested-class pulse">${show_class}</td>
             </tr>
         </table>
     `;
