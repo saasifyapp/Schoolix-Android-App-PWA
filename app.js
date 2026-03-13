@@ -32,7 +32,10 @@ document.getElementById("calculateButton").addEventListener("click", function ()
     }
 
     const today = new Date();
-    const birthDate = new Date(birthdateInput);
+
+    // PATCH 1: Fix UTC Timezone shift bug by splitting the string and parsing locally
+    const [bYear, bMonth, bDay] = birthdateInput.split('-').map(Number);
+    const birthDate = new Date(bYear, bMonth - 1, bDay);
 
     if (isNaN(birthDate.getTime())) {
         Swal.fire({ icon: 'error', title: 'Invalid Date', text: 'Invalid date format. Please enter a correct birthdate.', confirmButtonColor: '#094f93' });
@@ -75,49 +78,61 @@ document.getElementById("calculateButton").addEventListener("click", function ()
     }
     const current_age = `${years} Y, ${months} M, ${days} D`;
 
-    // ── 2. Age on 31st December Calculation ──
-    const current_year = today.getFullYear();
-    const specificDate = new Date(current_year, 11, 31);
+    // ── 2. Age on 31st December Calculation (Smart Target Year + Strict Math) ──
+    let target_year = today.getFullYear();
 
-    let years_1 = specificDate.getFullYear() - birthDate.getFullYear();
-    let months_1 = specificDate.getMonth() - birthDate.getMonth();
-    let days_1 = specificDate.getDate() - birthDate.getDate();
+    // PATCH 2: If calculating in Oct (9), Nov (10), or Dec (11), assume admissions for next year
+    if (today.getMonth() >= 9) {
+        target_year += 1;
+    }
 
-    if (months_1 < 0 || (months_1 === 0 && days_1 < 0)) {
-        years_1--;
-        months_1 += 12;
-    }
-    if (days_1 < 0) {
-        const daysInLastMonthSpecific = new Date(specificDate.getFullYear(), specificDate.getMonth(), 0).getDate();
-        days_1 += daysInLastMonthSpecific;
-        months_1--;
-    }
+    const specificDate = new Date(target_year, 11, 31); // Dec 31st of target year
+
+    const years_1 = specificDate.getFullYear() - birthDate.getFullYear();
+    const months_1 = specificDate.getMonth() - birthDate.getMonth();
+    const days_1 = specificDate.getDate() - birthDate.getDate();
+
     const age_on_date = `${years_1} Y, ${months_1} M, ${days_1} D`;
 
-    // ── 3. Class Proposal Logic ──
+    // ── 3. Class Proposal Logic (Strict Gov Criteria: X Years, 11 Months, 15 Days) ──
     let show_class = "";
-    const isMidYearOrOlder = (m) => m >= 6;
 
-    if (years_1 < 3) {
-        show_class = "VISIT NEXT YEAR";
-    } else if (years_1 >= 16) {
+    const meetsGovCriteria = (target_years) => {
+        return (years_1 > target_years) || (years_1 === target_years && months_1 === 11 && days_1 >= 15);
+    };
+
+    if (years_1 >= 16) {
         show_class = "OUT OF SCHOOL";
+    } else if (meetsGovCriteria(14)) {
+        show_class = "10th Standard";
+    } else if (meetsGovCriteria(13)) {
+        show_class = "9th Standard";
+    } else if (meetsGovCriteria(12)) {
+        show_class = "8th Standard";
+    } else if (meetsGovCriteria(11)) {
+        show_class = "7th Standard";
+    } else if (meetsGovCriteria(10)) {
+        show_class = "6th Standard";
+    } else if (meetsGovCriteria(9)) {
+        show_class = "5th Standard";
+    } else if (meetsGovCriteria(8)) {
+        show_class = "4th Standard";
+    } else if (meetsGovCriteria(7)) {
+        show_class = "3rd Standard";
+    } else if (meetsGovCriteria(6)) {
+        show_class = "2nd Standard";
+    } else if (meetsGovCriteria(5)) {
+        show_class = "1st Standard";
+    } else if (meetsGovCriteria(4)) {
+        show_class = "UKG";
+    } else if (meetsGovCriteria(3)) {
+        show_class = "LKG";
+    } else if (meetsGovCriteria(2)) {
+        show_class = "Nursery";
+    } else if (meetsGovCriteria(1)) {
+        show_class = "Playgroup";
     } else {
-        switch (years_1) {
-            case 3:  show_class = "Nursery"; break;
-            case 4:  show_class = isMidYearOrOlder(months_1) ? "LKG" : "Nursery / LKG"; break;
-            case 5:  show_class = isMidYearOrOlder(months_1) ? "UKG" : "LKG / UKG"; break;
-            case 6:  show_class = isMidYearOrOlder(months_1) ? "1ST" : "UKG / 1ST"; break;
-            case 7:  show_class = isMidYearOrOlder(months_1) ? "2ND" : "1ST / 2ND"; break;
-            case 8:  show_class = isMidYearOrOlder(months_1) ? "3RD" : "2ND / 3RD"; break;
-            case 9:  show_class = isMidYearOrOlder(months_1) ? "4TH" : "3RD / 4TH"; break;
-            case 10: show_class = isMidYearOrOlder(months_1) ? "5TH" : "4TH / 5TH"; break;
-            case 11: show_class = isMidYearOrOlder(months_1) ? "6TH" : "5TH / 6TH"; break;
-            case 12: show_class = isMidYearOrOlder(months_1) ? "7TH" : "6TH / 7TH"; break;
-            case 13: show_class = isMidYearOrOlder(months_1) ? "8TH" : "7TH / 8TH"; break;
-            case 14: show_class = isMidYearOrOlder(months_1) ? "9TH" : "8TH / 9TH"; break;
-            case 15: show_class = isMidYearOrOlder(months_1) ? "10TH" : "9TH / 10TH"; break;
-        }
+        show_class = "VISIT NEXT YEAR";
     }
 
     // ── 4. Render output ──
@@ -128,7 +143,7 @@ document.getElementById("calculateButton").addEventListener("click", function ()
                 <td>${current_age}</td>
             </tr>
             <tr>
-                <td><i class='bx bx-calendar-event row-icon'></i> <strong>Age on 31 Dec ${current_year}</strong></td>
+                <td><i class='bx bx-calendar-event row-icon'></i> <strong>Age on 31 Dec ${target_year}</strong></td>
                 <td>${age_on_date}</td>
             </tr>
             <tr class="highlight-row">
