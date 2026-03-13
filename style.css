@@ -539,6 +539,7 @@ body {
         padding-top: calc(28px + env(safe-area-inset-top));
     }
 
+    
     .app-footer {
         padding-bottom: calc(24px + env(safe-area-inset-bottom));
     }
