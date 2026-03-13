@@ -169,7 +169,7 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// ── Active Update Checker ──
+// ── Active Update Checker ──  
 (async function checkForAppUpdate() {
     try {
         const response = await fetch('/version.json?t=' + new Date().getTime());
