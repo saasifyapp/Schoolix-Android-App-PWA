@@ -82,7 +82,7 @@ document.getElementById("calculateButton").addEventListener("click", function ()
 
     // ── SWAL Validations ──
     if (!birthdateInput) {
-        Swal.fire({ icon: 'warning', title: 'Missing Info', text: 'Please select a valid date.', confirmButtonColor: '#094f93' });
+        Swal.fire({ icon: 'warning', title: 'Missing Info', text: 'Please select a valid date.', confirmButtonColor: '#094f93', heightAuto: false });
         return;
     }
 
@@ -93,27 +93,27 @@ document.getElementById("calculateButton").addEventListener("click", function ()
     const birthDate = new Date(bYear, bMonth - 1, bDay);
 
     if (isNaN(birthDate.getTime())) {
-        Swal.fire({ icon: 'error', title: 'Invalid Date', text: 'Invalid date format. Please enter a correct birthdate.', confirmButtonColor: '#094f93' });
+        Swal.fire({ icon: 'error', title: 'Invalid Date', text: 'Invalid date format. Please enter a correct birthdate.', confirmButtonColor: '#094f93', heightAuto: false });
         return;
     }
     if (birthDate > today) {
-        Swal.fire({ icon: 'warning', title: 'Future Date', text: 'Please select a date before today.', confirmButtonColor: '#094f93' });
+        Swal.fire({ icon: 'warning', title: 'Future Date', text: 'Please select a date before today.', confirmButtonColor: '#094f93', heightAuto: false });
         return;
     }
 
     const minValidYear = 1900;
     if (birthDate.getFullYear() < minValidYear) {
-        Swal.fire({ icon: 'warning', title: 'Invalid Year', text: `Please select a date after ${minValidYear}.`, confirmButtonColor: '#094f93' });
+        Swal.fire({ icon: 'warning', title: 'Invalid Year', text: `Please select a date after ${minValidYear}.`, confirmButtonColor: '#094f93', heightAuto: false });
         return;
     }
 
     const ageInYears = today.getFullYear() - birthDate.getFullYear();
     if (ageInYears < 0) {
-        Swal.fire({ icon: 'error', title: 'Negative Age', text: 'Birthdate leads to negative age. Please check again.', confirmButtonColor: '#094f93' });
+        Swal.fire({ icon: 'error', title: 'Negative Age', text: 'Birthdate leads to negative age. Please check again.', confirmButtonColor: '#094f93', heightAuto: false });
         return;
     }
     if (ageInYears > 100) {
-        Swal.fire({ icon: 'warning', title: 'Age Over 100', text: 'Entered birthdate suggests age over 100. Please verify.', confirmButtonColor: '#094f93' });
+        Swal.fire({ icon: 'warning', title: 'Age Over 100', text: 'Entered birthdate suggests age over 100. Please verify.', confirmButtonColor: '#094f93', heightAuto: false });
         return;
     }
 
@@ -277,7 +277,8 @@ async function checkForAppUpdate(waitingSW) {
                 confirmButtonText: 'Update Now',
                 confirmButtonColor: '#094f93',
                 allowOutsideClick: false,
-                allowEscapeKey: false
+                allowEscapeKey: false,
+                heightAuto: false
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Tell the waiting SW to activate — controllerchange handles reload
