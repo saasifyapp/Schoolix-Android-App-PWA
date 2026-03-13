@@ -115,10 +115,7 @@ body {
     padding: 20px 16px 32px;
     max-width: 480px;
     width: 100%;
-    margin: auto auto; /* Vertically center on ultra-tall devices */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    margin: 0 auto;
 }
 
 /* ── Calculator Card ── */
@@ -548,7 +545,7 @@ body {
 }
 
 /* ── Premium SweetAlert2 Overrides ── */
-.swal2-popup {
+.swal2-popup.swal2-show {
     border-radius: 20px !important;
     padding: 24px 20px 20px !important;
     width: 320px !important; /* Compact size for mobile */
