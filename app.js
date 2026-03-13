@@ -16,10 +16,64 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("calculator_output").innerHTML = emptyStateHTML;
 });
 
+// ── Smooth State Transition Helper ──
+async function updateResultArea(newHTML) {
+    const outputContainer = document.getElementById("calculator_output");
+    const wrapper = outputContainer.parentElement; // the result-card
+
+    // 1. Lock the current height before we destroy the DOM
+    const currentHeight = wrapper.offsetHeight;
+    wrapper.style.height = currentHeight + 'px';
+
+    // 2. Fade out current content
+    if (outputContainer.children.length > 0) {
+        outputContainer.firstElementChild.classList.add('fade-out');
+        await new Promise(r => setTimeout(r, 200)); // wait for fade out
+    }
+
+    // 3. Inject new HTML hidden to calculate its target height
+    outputContainer.style.opacity = '0';
+    outputContainer.innerHTML = newHTML;
+
+    // Remove any previous fade classes from the new elements so they can trigger again
+    const newChild = outputContainer.firstElementChild;
+    if (newChild) newChild.classList.remove('fade-in', 'fade-out');
+
+    // Calculate new height naturally
+    wrapper.style.height = 'auto'; // release lock temporarily
+    const targetHeight = wrapper.offsetHeight;
+
+    // Reset lock to current height then animate to target
+    wrapper.style.height = currentHeight + 'px';
+    
+    // Force DOM reflow
+    wrapper.offsetHeight; 
+
+    // Animate wrapper height
+    wrapper.style.height = targetHeight + 'px';
+
+    // Animate content back in
+    outputContainer.style.opacity = '1';
+    if (newChild) newChild.classList.add('fade-in');
+
+    // Clean up fixed height locks after transition so it remains responsive
+    setTimeout(() => {
+        wrapper.style.height = 'auto';
+    }, 400);
+}
+
 // Clear the input and restore empty state
 function clearCalculator() {
-    document.getElementById("birthdate").value = "";
-    document.getElementById("calculator_output").innerHTML = emptyStateHTML;
+    const dateInput = document.getElementById("birthdate");
+    const outputContainer = document.getElementById("calculator_output");
+    
+    // Check if it's already in the empty state
+    if (!dateInput.value && outputContainer.querySelector('.empty-state')) {
+        return; // Do nothing, avoid redundant animation
+    }
+    
+    dateInput.value = "";
+    updateResultArea(emptyStateHTML);
 }
 
 // Main Calculation Logic
@@ -136,8 +190,8 @@ document.getElementById("calculateButton").addEventListener("click", function ()
         show_class = "VISIT NEXT YEAR";
     }
 
-    // ── 4. Render output ──
-    document.getElementById("calculator_output").innerHTML = `
+    // ── 4. Render output gracefully ──
+    updateResultArea(`
         <table class="age-table">
             <tr class="row-animate">
                 <td><i class='bx bx-calendar-check row-icon'></i> <strong>Current Age</strong></td>
@@ -152,13 +206,7 @@ document.getElementById("calculateButton").addEventListener("click", function ()
                 <td class="suggested-class pulse">${show_class}</td>
             </tr>
         </table>
-    `;
-
-    // Animate the result in
-    const table = document.querySelector('.age-table');
-    if (table) {
-        table.classList.add('fade-in');
-    }
+    `);
 });
 
 // ── Register Service Worker ──

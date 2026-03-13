@@ -83,11 +83,11 @@ body {
     align-items: center;
     justify-content: center;
     gap: 10px;
+    animation: float 3s ease-in-out infinite;
 }
 
 .header-icon {
     font-size: 28px;
-    animation: float 3s ease-in-out infinite;
 }
 
 @keyframes float {
@@ -115,7 +115,10 @@ body {
     padding: 20px 16px 32px;
     max-width: 480px;
     width: 100%;
-    margin: 0 auto;
+    margin: auto auto; /* Vertically center on ultra-tall devices */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 /* ── Calculator Card ── */
@@ -153,8 +156,10 @@ body {
     display: flex;
     gap: 8px;
     margin-bottom: 16px;
+    position: relative;
 }
 
+/* Touch Ergonomics: massive invisible trigger over native date input */
 .date-input {
     flex: 1;
     padding: 14px 16px;
@@ -168,6 +173,23 @@ body {
     transition: border-color var(--transition), box-shadow var(--transition);
     -webkit-appearance: none;
     appearance: none;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+}
+
+/* Make native calendar icon huge to cover the whole input for easy tapping */
+.date-input::-webkit-calendar-picker-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: auto;
+    color: transparent;
+    background: transparent;
+    cursor: pointer;
 }
 
 .date-input:focus {
@@ -175,9 +197,14 @@ body {
     box-shadow: 0 0 0 4px rgba(9, 79, 147, 0.1);
 }
 
+/* Label active state sync */
+.calculator-card:has(.date-input:focus) .input-label {
+    color: var(--primary);
+}
+
 .clear-btn {
-    width: 48px;
-    height: 48px;
+    width: auto;
+    aspect-ratio: 1;
     border: 2px solid var(--border);
     border-radius: var(--radius-sm);
     background: var(--bg);
@@ -187,18 +214,32 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all var(--transition);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     flex-shrink: 0;
+    position: relative;
+    z-index: 3;
 }
 
-.clear-btn:hover {
-    border-color: #e74c3c;
-    color: #e74c3c;
-    background: #fdf0ef;
+/* Touch target boost without breaking layout */
+.clear-btn::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+}
+
+@media (hover: hover) {
+    .clear-btn:hover {
+        border-color: #e74c3c;
+        color: #e74c3c;
+        background: #fdf0ef;
+    }
 }
 
 .clear-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.9);
+    background: #fadcd9;
+    color: #c0392b;
+    border-color: #c0392b;
 }
 
 .calculate-btn {
@@ -216,30 +257,33 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    transition: all var(--transition);
+    transition: all 0.2s ease;
     position: relative;
     overflow: hidden;
+    transform: translateZ(0); /* Hardware accel */
 }
 
-.calculate-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-    transition: left 0.5s ease;
-}
+@media (hover: hover) {
+    .calculate-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+        transition: left 0.5s ease;
+    }
 
-.calculate-btn:hover::before {
-    left: 100%;
-}
+    .calculate-btn:hover::before {
+        left: 100%;
+    }
 
-.calculate-btn:hover {
-    background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
-    box-shadow: 0 6px 20px rgba(9, 79, 147, 0.3);
-    transform: translateY(-1px);
+    .calculate-btn:hover {
+        background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+        box-shadow: 0 6px 20px rgba(9, 79, 147, 0.3);
+        transform: translateY(-2px);
+    }
 }
 
 .calculate-btn:active {
@@ -258,9 +302,9 @@ body {
     padding: 20px;
     box-shadow: var(--shadow);
     border: 1px solid var(--border);
-    min-height: 100px;
-    transition: box-shadow var(--transition);
+    transition: box-shadow var(--transition), height 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     animation: cardEntrance 0.5s 0.15s ease-out both;
+    overflow: hidden;
 }
 
 .result-card:hover {
@@ -368,19 +412,34 @@ body {
     }
 }
 
-/* Table fade-in (whole table) */
+/* ── Fade-In / Fade-Out Animation (State Interp) ── */
 .fade-in {
-    animation: fadeSlideIn 0.4s ease-out;
+    animation: fadeSlideIn 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.fade-out {
+    animation: fadeOut 0.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
 @keyframes fadeSlideIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(15px);
     }
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
     }
 }
 
@@ -486,4 +545,54 @@ body {
     .app-footer {
         padding-bottom: calc(24px + env(safe-area-inset-bottom));
     }
+}
+
+/* ── Premium SweetAlert2 Overrides ── */
+.swal2-popup {
+    border-radius: 20px !important;
+    padding: 24px 20px 20px !important;
+    width: 320px !important; /* Compact size for mobile */
+    max-width: 90% !important;
+    box-shadow: 0 16px 48px rgba(9, 79, 147, 0.15) !important;
+    font-family: 'Inter', sans-serif !important;
+    animation: fadeSlideIn 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+.swal2-icon {
+    margin: 0 auto 16px !important;
+    transform: scale(0.85); /* Slightly smaller icons */
+}
+
+.swal2-title {
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    color: var(--text) !important;
+    padding: 0 !important;
+    margin-bottom: 8px !important;
+}
+
+.swal2-html-container {
+    font-size: 0.95rem !important;
+    line-height: 1.5 !important;
+    color: var(--text-muted) !important;
+    margin: 0 !important;
+}
+
+.swal2-actions {
+    margin-top: 24px !important;
+    width: 100% !important;
+}
+
+.swal2-confirm, .swal2-cancel {
+    border-radius: var(--radius-sm) !important;
+    font-weight: 600 !important;
+    padding: 14px 24px !important;
+    width: 100% !important; /* Full width button on mobile */
+    margin: 0 !important;
+    box-shadow: none !important;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%) !important;
+}
+
+.swal2-confirm:active {
+    transform: scale(0.98) !important;
 }
